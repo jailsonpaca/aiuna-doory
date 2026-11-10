@@ -3,6 +3,7 @@
 # ---- build the SPA ----
 # On the machine's own platform: the files it makes are the same for every platform, and building an arm64 image
 # under emulation is slow enough to stall (the bundler hung for two hours there).
+ARG BUILDPLATFORM=linux/amd64
 FROM --platform=$BUILDPLATFORM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
