@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { useAuthModal } from '@/features/auth/AuthModalProvider'
+import { isEmbedMode } from '@/features/embed/embedMode'
 import { createGuestAdapter, type MigrationProgress } from '@/features/editor/adapters'
 import { EditorHomeLink } from '@/features/editor/EditorHomeLink'
 import { EditorProblemPage, EditorSkeleton } from '@/features/editor/EditorStates'
@@ -119,7 +120,11 @@ export default function LocalEditorPage() {
         onTitleChange={setTitle}
         onSaveStateChange={setSaveState}
         topBarStart={<EditorHomeLink to="/" />}
-        topBarEnd={<GuestBanner signedIn={status === 'authenticated'} memoryOnly={storageMode === 'memory'} busy={migration.active} onSave={() => void saveToAccount()} />}
+        topBarEnd={
+          isEmbedMode() ? null : (
+            <GuestBanner signedIn={status === 'authenticated'} memoryOnly={storageMode === 'memory'} busy={migration.active} onSave={() => void saveToAccount()} />
+          )
+        }
       />
       <MigrationOverlay open={migration.active} progress={migration.progress} />
     </>

@@ -17,6 +17,7 @@ urlpatterns = [
     path("api/v1/", include("apps.fonts.urls")),
     path("api/v1/", include("apps.brand.urls")),
     path("api/v1/", include("apps.sharing.urls")),
+    path("api/v1/", include("apps.embed.urls")),
     path("api/v1/", include("apps.exports.urls")),
     path("api/v1/", include("apps.collab.urls")),
     path("api/v1/", include("apps.presets.urls")),

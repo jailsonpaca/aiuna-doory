@@ -1,21 +1,34 @@
 import { getLocale, setLocale, type Locale } from './locale'
 
-const catalogs: Record<'zh-CN' | 'zh-TW', Record<string, string>> = { 'zh-CN': {}, 'zh-TW': {} }
-const functions: Record<'zh-CN' | 'zh-TW', Record<string, (...args: never[]) => string>> = { 'zh-CN': {}, 'zh-TW': {} }
+const catalogs: Record<'pt' | 'zh-CN' | 'zh-TW', Record<string, string>> = {
+  pt: {},
+  'zh-CN': {},
+  'zh-TW': {},
+}
+const functions: Record<'pt' | 'zh-CN' | 'zh-TW', Record<string, (...args: never[]) => string>> = {
+  pt: {},
+  'zh-CN': {},
+  'zh-TW': {},
+}
 const pending = new Map<Locale, Promise<void>>()
 
-/** The default English bundle never downloads both Chinese catalogs. */
+/** The default English bundle never downloads other catalogs until requested. */
 export function loadLocale(locale: Locale): Promise<void> {
   if (locale === 'en' || Object.keys(catalogs[locale]).length) return Promise.resolve()
   const existing = pending.get(locale)
   if (existing) return existing
-  const load = (locale === 'zh-CN'
-    ? Promise.all([import('./zh-CN.json'), import('./functions-zh-CN')])
-    : Promise.all([import('./zh-TW.json'), import('./functions-zh-TW')]))
+  const load = (
+    locale === 'pt'
+      ? Promise.all([import('./pt.json'), import('./functions-pt')])
+      : locale === 'zh-CN'
+        ? Promise.all([import('./zh-CN.json'), import('./functions-zh-CN')])
+        : Promise.all([import('./zh-TW.json'), import('./functions-zh-TW')])
+  )
     .then(([messages, dynamic]) => {
       catalogs[locale] = messages.default
       functions[locale] = dynamic.functions
-    }).finally(() => pending.delete(locale))
+    })
+    .finally(() => pending.delete(locale))
   pending.set(locale, load)
   return load
 }

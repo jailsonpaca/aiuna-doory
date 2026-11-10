@@ -1,4 +1,5 @@
 import { ChevronDown, Copy, Download, History, Menu as MenuIcon, Presentation, Share2, SlidersHorizontal, Users } from 'lucide-react'
+import { isEmbedMode } from '@/features/embed/embedMode'
 import { useContrast } from '@/lib/contrast'
 import { useSizePresets } from '@/lib/sizePresets'
 import { getPageSize } from './engine/pageSizes'
@@ -265,6 +266,7 @@ export function TopBar({ start, end, onTitle, onPresent }: TopBarProps) {
   const barRef = useRef<HTMLElement>(null)
   const barWidth = useWidth(barRef)
   const narrow = barWidth > 0 && barWidth < NARROW_BAR
+  const embed = isEmbedMode()
 
   const endTools = visible.filter((p) => p.slot === 'end' && (!readOnly || p.readOnly))
 
@@ -333,10 +335,10 @@ export function TopBar({ start, end, onTitle, onPresent }: TopBarProps) {
   }, [readOnly, editor])
 
   return (
-    <header ref={barRef} className={styles.bar} data-testid="ed-topbar" data-narrow={narrow || undefined}>
+    <header ref={barRef} className={styles.bar} data-testid="ed-topbar" data-narrow={narrow || undefined} data-embed={embed || undefined}>
       <div className={styles.left}>
         {start}
-        {narrow ? (
+        {embed ? null : narrow ? (
           <MenuButton label={t.topbar.menu} items={combinedItems} testId="ed-more" icon={<MenuIcon size={18} aria-hidden="true" />} onOpen={() => preloadDialog('download')} />
         ) : (
           <nav className={styles.menus} aria-label={t.topbar.menus}>
@@ -369,12 +371,14 @@ export function TopBar({ start, end, onTitle, onPresent }: TopBarProps) {
       )}
 
       <div className={styles.right}>
-        <div className={styles.presence}>
-          <PresenceStack />
-        </div>
-        {!narrow ? endTools.map((p) => <EndTool key={p.id} panel={p} open={openId === p.id} onToggle={() => toggle(p.id)} />) : null}
-        {end ? <div className={styles.end}>{end}</div> : null}
-        <ShareMenu onPresent={onPresent} />
+        {embed ? null : (
+          <div className={styles.presence}>
+            <PresenceStack />
+          </div>
+        )}
+        {!narrow && !embed ? endTools.map((p) => <EndTool key={p.id} panel={p} open={openId === p.id} onToggle={() => toggle(p.id)} />) : null}
+        {end && !embed ? <div className={styles.end}>{end}</div> : null}
+        {embed ? null : <ShareMenu onPresent={onPresent} />}
       </div>
     </header>
   )

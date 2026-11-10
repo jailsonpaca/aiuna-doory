@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { useAuthModal } from '@/features/auth/AuthModalProvider'
 import { rateLimitMessage } from '@/features/auth/errors'
+import { isEmbedMode } from '@/features/embed/embedMode'
 import { createSharedAdapter, RevisionTracker } from '@/features/editor/adapters'
 import { EditorHomeLink } from '@/features/editor/EditorHomeLink'
 import { EditorProblemPage, EditorSkeleton } from '@/features/editor/EditorStates'
@@ -116,7 +117,9 @@ export default function SharedDesignPage() {
 
   if (!shared || !adapter || !meta) return null
 
-  if (shared.role === 'edit' && status !== 'authenticated') {
+  const embed = isEmbedMode()
+  // Aiuna Growth iframe: allow anonymous edit via the share token (no signup chrome).
+  if (shared.role === 'edit' && status !== 'authenticated' && !embed) {
     return (
       <main id="main" tabIndex={-1} className={styles.center}>
         <EmptyState
@@ -140,14 +143,16 @@ export default function SharedDesignPage() {
       onConflictResolve={resolveConflict}
       topBarStart={<EditorHomeLink to="/" />}
       topBarEnd={
-        <div className={styles.topEnd}>
-          <span className={styles.owner}>
-            <Avatar name={shared.owner.name} src={shared.owner.avatar_url} size={24} />
-            <span>{msg("Shared by ")}{shared.owner.name}</span>
-          </span>
-          <LinkButton to="/create" size="sm" variant="secondary">
-            {msg("Design your own")}</LinkButton>
-        </div>
+        embed ? null : (
+          <div className={styles.topEnd}>
+            <span className={styles.owner}>
+              <Avatar name={shared.owner.name} src={shared.owner.avatar_url} size={24} />
+              <span>{msg("Shared by ")}{shared.owner.name}</span>
+            </span>
+            <LinkButton to="/create" size="sm" variant="secondary">
+              {msg("Design your own")}</LinkButton>
+          </div>
+        )
       }
     />
   )

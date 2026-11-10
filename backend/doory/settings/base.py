@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "apps.fonts",
     "apps.brand",
     "apps.sharing",
+    "apps.embed",
     "apps.exports",
     "apps.collab",
     "apps.presets",

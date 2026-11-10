@@ -34,7 +34,12 @@ export default function CreatePage() {
       const spec = resolveCreateSpec(params, params.has('preset') ? await sizePresetsReady() : getSizePresets())
       try {
         const target = status === 'authenticated' ? await createAccountDesign(spec) : await createGuestDesign(spec)
-        navigate(target, { replace: true })
+        // Keep Aiuna embed flags across the /create → editor redirect.
+        const embedQs = new URLSearchParams()
+        if (params.get('embed') === '1' || params.get('embed') === 'true') embedQs.set('embed', '1')
+        if (params.get('lang')) embedQs.set('lang', params.get('lang')!)
+        const suffix = embedQs.toString() ? `?${embedQs}` : ''
+        navigate(`${target}${suffix}`, { replace: true })
       } catch (error) {
         started.current = false
         if (error instanceof LocalStorageFullError) setFailure('storage-full')

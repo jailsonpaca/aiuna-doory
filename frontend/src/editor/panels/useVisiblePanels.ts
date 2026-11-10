@@ -1,3 +1,4 @@
+import { EMBED_HIDDEN_PANEL_IDS, isEmbedMode } from '@/features/embed/embedMode'
 import { useSyncExternalStore } from 'react'
 import { useEditor, useEditorStateShallow } from '../context'
 import { panels } from './registry'
@@ -6,5 +7,11 @@ import { panels } from './registry'
 export function useVisiblePanels() {
   const editor = useEditor()
   const all = useSyncExternalStore(panels.subscribe, panels.getSnapshot)
-  return useEditorStateShallow((state) => all.filter((p) => !p.requires || p.requires({ editor, state })))
+  const embed = isEmbedMode()
+  return useEditorStateShallow((state) =>
+    all.filter((p) => {
+      if (embed && EMBED_HIDDEN_PANEL_IDS.has(p.id)) return false
+      return !p.requires || p.requires({ editor, state })
+    }),
+  )
 }
